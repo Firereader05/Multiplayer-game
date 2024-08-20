@@ -17,24 +17,32 @@ window.addEventListener('keydown', (e) => keys[e.key] = true);
 window.addEventListener('keyup', (e) => keys[e.key] = false);
 
 async function getGameState() {
-    const response = await fetch(`${binUrl}/latest`, {
-        headers: {
-            'X-Master-Key': apiKey
-        }
-    });
-    const data = await response.json();
-    return data.record;
+    try {
+        const response = await fetch(`${binUrl}/latest`, {
+            headers: {
+                'X-Master-Key': apiKey
+            }
+        });
+        const data = await response.json();
+        return data.record;
+    } catch (error) {
+        console.error('Failed to retrieve game state:', error);
+    }
 }
 
 async function updateGameState(newState) {
-    await fetch(binUrl, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': apiKey
-        },
-        body: JSON.stringify(newState)
-    });
+    try {
+        await fetch(binUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': apiKey
+            },
+            body: JSON.stringify(newState)
+        });
+    } catch (error) {
+        console.error('Failed to update game state:', error);
+    }
 }
 
 function updatePlayerPosition() {
@@ -58,15 +66,24 @@ function drawPlayers() {
 async function gameLoop() {
     gameState = await getGameState();
 
+    // Ensure the current player is in the game state
     if (!gameState.players.some(p => p.id === playerId)) {
         gameState.players.push({ id: playerId, x: canvas.width / 2, y: canvas.height / 2 });
     }
 
     updatePlayerPosition();
+
     await updateGameState(gameState);
     drawPlayers();
 
     requestAnimationFrame(gameLoop);
 }
 
+// Adjust canvas size on window resize
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+// Start the game loop
 gameLoop();
