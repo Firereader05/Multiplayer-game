@@ -1,6 +1,6 @@
 const binId = '66c3a552ad19ca34f8984862'; // Replace with your actual bin ID
 const apiKey = '$2a$10$Uc0QY0btzASJ59ENNfoEsOFkgGVydhD5syUMRadzecBpGjC9DEQW2'; // Replace with your actual API key
-const binUrl = `https://api.jsonbin.io/v3/b/66c3a552ad19ca34f8984862`;
+const binUrl = `https://api.jsonbin.io/v3/b/${binId}`;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
