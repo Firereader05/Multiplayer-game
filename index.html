@@ -3,20 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplayer Cube Game</title>
+    <title>Cube Movement</title>
     <style>
-        body, html {
+        body {
             margin: 0;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
         }
-        canvas {
-            background: #222;
-            display: block;
+        .cube {
+            width: 50px;
+            height: 50px;
+            background-color: gray;
+            position: absolute;
+        }
+        #cube1 {
+            left: 100px;
+            top: 100px;
+        }
+        #cube2 {
+            left: 300px;
+            top: 100px;
+            background-color: darkgray;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <div id="cube1" class="cube"></div>
+    <div id="cube2" class="cube"></div>
     <script src="script.js"></script>
 </body>
 </html>
