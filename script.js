@@ -1,118 +1,131 @@
-// Configuration for jsonbin.io
-const apiKey = '$2a$10$st.acJGoKc4lbSYAhnaIoOnc3gFoQGbxuv2hIGRkde2bvDaXybFuC';  // Replace with your actual API key
-const binId = '66c73f65e41b4d34e423bd43';  // Replace with your actual Bin ID
-const binUrl = `https://api.jsonbin.io/v3/b/${binId}`; // URL for accessing the bin
+document.addEventListener('DOMContentLoaded', function() {
+    // Selecting the cubes
+    const cube1 = document.getElementById('cube1');
+    const cube2 = document.getElementById('cube2');
 
-// Initialize player data
-const playerSprites = {
-    'player1': createSprite(100, 200),
-    'player2': createSprite(300, 200)
-};
+    // Initial positions
+    let cube1Pos = { x: 100, y: 100 };
+    let cube2Pos = { x: 300, y: 100 };
 
-// Set player sprite properties
-for (const playerId in playerSprites) {
-    const player = playerSprites[playerId];
-    player.shapeColor = playerId === 'player1' ? 'red' : 'blue'; // Different color for each player
-    player.scale = 0.5;
-}
+    // Movement speed
+    const speed = 5;
 
-// Function to send player data to the bin
-function updatePlayerData(playerId, x, y, velocityX, velocityY) {
-    fetch(binUrl, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': apiKey
-        },
-        body: JSON.stringify({
-            "players": {
-                [playerId]: { "x": x, "y": y, "velocityX": velocityX, "velocityY": velocityY }
+    // Configuration for jsonbin.io
+    const apiKey = '$2a$10$st.acJGoKc4lbSYAhnaIoOnc3gFoQGbxuv2hIGRkde2bvDaXybFuC';  // Replace with your actual API key
+    const binId = '66c73f65e41b4d34e423bd43';  // Replace with your actual Bin ID
+    const binUrl = `https://api.jsonbin.io/v3/b/${binId}`;
+
+    // Function to send player data to the bin
+    function updatePlayerData(playerId, x, y) {
+        fetch(binUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': apiKey
+            },
+            body: JSON.stringify({
+                "players": {
+                    [playerId]: { "x": x, "y": y }
+                }
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Player data updated:', data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Function to fetch player data from the bin
+    function fetchPlayerData() {
+        fetch(`${binUrl}/latest`, {
+            method: 'GET',
+            headers: {
+                'X-Master-Key': apiKey
             }
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Player data updated:', data);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fetched player data:', data.players);
+            updateGameState(data.players);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
 
-// Function to fetch player data from the bin
-function fetchPlayerData() {
-    fetch(`${binUrl}/latest`, {
-        method: 'GET',
-        headers: {
-            'X-Master-Key': apiKey
+    // Function to update game state with player data
+    function updateGameState(players) {
+        if (players['player1']) {
+            cube1.style.left = `${players['player1'].x}px`;
+            cube1.style.top = `${players['player1'].y}px`;
+            cube1Pos = { x: players['player1'].x, y: players['player1'].y };
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Fetched player data:', data.players);
-        updateGameState(data.players);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
-
-// Function to update game state with player data
-function updateGameState(players) {
-    for (const playerId in players) {
-        const playerData = players[playerId];
-        if (playerSprites[playerId]) {
-            playerSprites[playerId].x = playerData.x;
-            playerSprites[playerId].y = playerData.y;
-            playerSprites[playerId].velocityX = playerData.velocityX;
-            playerSprites[playerId].velocityY = playerData.velocityY;
+        if (players['player2']) {
+            cube2.style.left = `${players['player2'].x}px`;
+            cube2.style.top = `${players['player2'].y}px`;
+            cube2Pos = { x: players['player2'].x, y: players['player2'].y };
         }
     }
-}
 
-// Function to handle player input and update player data
-function handlePlayerInput(playerId, x, y, velocityX, velocityY) {
-    // Update player data on the server
-    updatePlayerData(playerId, x, y, velocityX, velocityY);
-}
-
-// Main draw loop
-function draw() {
-    background('white');
-
-    // Example player movement handling
-    if (keyIsDown(LEFT_ARROW)) {
-        playerSprites['player1'].x -= 5;
-    }
-    if (keyIsDown(RIGHT_ARROW)) {
-        playerSprites['player1'].x += 5;
-    }
-    if (keyIsDown(UP_ARROW)) {
-        playerSprites['player1'].y -= 5;
-    }
-    if (keyIsDown(DOWN_ARROW)) {
-        playerSprites['player1'].y += 5;
+    // Function to handle player input and update player data
+    function handlePlayerInput(playerId, x, y) {
+        // Update player data on the server
+        updatePlayerData(playerId, x, y);
     }
 
-    // Update player data with new positions
-    const playerId = 'player1'; // For demonstration, this is player1
-    const player = playerSprites[playerId];
-    handlePlayerInput(playerId, player.x, player.y, player.velocityX, player.velocityY);
+    // Key press handlers
+    document.addEventListener('keydown', (e) => {
+        switch(e.key) {
+            // Controls for Cube 1 (WASD)
+            case 'w':
+                cube1Pos.y -= speed;
+                break;
+            case 'a':
+                cube1Pos.x -= speed;
+                break;
+            case 's':
+                cube1Pos.y += speed;
+                break;
+            case 'd':
+                cube1Pos.x += speed;
+                break;
 
-    // Apply collision and update game state
-    for (const id in playerSprites) {
-        playerSprites[id].collide(platform);
-    }
+            // Controls for Cube 2 (Arrow keys)
+            case 'ArrowUp':
+                cube2Pos.y -= speed;
+                break;
+            case 'ArrowLeft':
+                cube2Pos.x -= speed;
+                break;
+            case 'ArrowDown':
+                cube2Pos.y += speed;
+                break;
+            case 'ArrowRight':
+                cube2Pos.x += speed;
+                break;
+        }
 
-    drawSprites();
-}
+        // Update the position of the cubes
+        cube1.style.left = `${cube1Pos.x}px`;
+        cube1.style.top = `${cube1Pos.y}px`;
 
-// Fetch player data every 10 seconds
-setInterval(fetchPlayerData, 10000);
+        cube2.style.left = `${cube2Pos.x}px`;
+        cube2.style.top = `${cube2Pos.y}px`;
 
-// Send player data every 10 seconds
-setInterval(() => {
-    const playerId = 'player1'; // Replace with actual player ID
-    const player = playerSprites[playerId];
-    handlePlayerInput(playerId, player.x, player.y, player.velocityX, player.velocityY);
-}, 10000);
+        // Send updated position to the server
+        handlePlayerInput('player1', cube1Pos.x, cube1Pos.y);
+        handlePlayerInput('player2', cube2Pos.x, cube2Pos.y);
+    });
+
+    // Fetch player data every 10 seconds
+    setInterval(fetchPlayerData, 10000);
+
+    // Send player data every 10 seconds
+    setInterval(() => {
+        handlePlayerInput('player1', cube1Pos.x, cube1Pos.y);
+        handlePlayerInput('player2', cube2Pos.x, cube2Pos.y);
+    }, 10000);
+});
