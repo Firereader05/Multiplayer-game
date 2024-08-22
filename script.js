@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Failed to update data');
+                throw new Error(`Failed to update data. Status: ${response.status}`);
             }
             return response.json();
         })
@@ -56,13 +56,17 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Failed to fetch data');
+                throw new Error(`Failed to fetch data. Status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
             logToConsole('Data fetched successfully');
-            updateGameState(data.record.players);
+            if (data && data.record && data.record.players) {
+                updateGameState(data.record.players);
+            } else {
+                logToConsole('No player data found in the fetched record.');
+            }
         })
         .catch(error => {
             logToConsole(`Error fetching data: ${error.message}`);
