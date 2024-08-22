@@ -6,10 +6,18 @@ const binUrl = `https://api.jsonbin.io/v3/b/${binId}`; // URL for accessing the 
 // Initialize request counter
 let requestCount = 0;
 
-// Get the HTML elements
-const sendDataButton = document.getElementById('sendData');
-const fetchDataButton = document.getElementById('fetchData');
-const output = document.getElementById('output');
+// Initialize player data
+const playerSprites = {
+    'player1': createSprite(100, 200),
+    'player2': createSprite(300, 200)
+};
+
+// Set player sprite properties
+for (const playerId in playerSprites) {
+    const player = playerSprites[playerId];
+    player.shapeColor = playerId === 'player1' ? 'red' : 'blue'; // Different color for each player
+    player.scale = 0.5;
+}
 
 // Function to send player data to the bin
 function updatePlayerData(playerId, x, y, velocityX, velocityY) {
@@ -62,12 +70,13 @@ function fetchPlayerData() {
 function updateGameState(players) {
     for (const playerId in players) {
         const playerData = players[playerId];
-        // Update player sprite positions and velocities
-        // Example:
-        // playerSprites[playerId].x = playerData.x;
-        // playerSprites[playerId].y = playerData.y;
-        // playerSprites[playerId].velocityX = playerData.velocityX;
-        // playerSprites[playerId].velocityY = playerData.velocityY;
+        if (playerSprites[playerId]) {
+            playerSprites[playerId].x = playerData.x;
+            playerSprites[playerId].y = playerData.y;
+            // Apply velocity if needed for animations
+            playerSprites[playerId].velocityX = playerData.velocityX;
+            playerSprites[playerId].velocityY = playerData.velocityY;
+        }
     }
 }
 
@@ -77,18 +86,45 @@ function handlePlayerInput(playerId, x, y, velocityX, velocityY) {
     updatePlayerData(playerId, x, y, velocityX, velocityY);
 }
 
+// Main draw loop
+function draw() {
+    background('white');
+
+    // Example player movement handling
+    if (keyIsDown(LEFT_ARROW)) {
+        playerSprites['player1'].x -= 5;
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+        playerSprites['player1'].x += 5;
+    }
+    if (keyIsDown(UP_ARROW)) {
+        playerSprites['player1'].y -= 5;
+    }
+    if (keyIsDown(DOWN_ARROW)) {
+        playerSprites['player1'].y += 5;
+    }
+
+    // Update player data with new positions
+    const playerId = 'player1'; // For demonstration, this is player1
+    const player = playerSprites[playerId];
+    handlePlayerInput(playerId, player.x, player.y, player.velocityX, player.velocityY);
+
+    // Apply collision and update game state
+    for (const id in playerSprites) {
+        playerSprites[id].collide(platform);
+    }
+
+    drawSprites();
+}
+
 // Fetch player data every 1 second
 setInterval(fetchPlayerData, 1000);
 
 // Event listeners for the buttons
 sendDataButton.addEventListener('click', () => {
-    // Example player data for testing
     const playerId = 'player1'; // Replace with actual player ID
-    const x = Math.random() * 500; // Example x position
-    const y = Math.random() * 500; // Example y position
-    const velocityX = Math.random() * 10; // Example velocityX
-    const velocityY = Math.random() * 10; // Example velocityY
-    handlePlayerInput(playerId, x, y, velocityX, velocityY);
+    const player = playerSprites[playerId];
+    handlePlayerInput(playerId, player.x, player.y, player.velocityX, player.velocityY);
 });
 
 fetchDataButton.addEventListener('click', fetchPlayerData);
