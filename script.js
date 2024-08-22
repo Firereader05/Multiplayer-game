@@ -3,10 +3,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const binId = '66c73f65e41b4d34e423bd43';
     const binUrl = `https://api.jsonbin.io/v3/b/${binId}/latest`;
 
+    const cube1 = document.getElementById('cube1');
+    const cube2 = document.getElementById('cube2');
+
     let cube1Pos = { x: 100, y: 100 };
     let cube2Pos = { x: 300, y: 100 };
 
     const speed = 5;
+
+    function logToConsole(message) {
+        const consoleDiv = document.getElementById('console');
+        const newMessage = document.createElement('div');
+        newMessage.textContent = message;
+        consoleDiv.appendChild(newMessage);
+        consoleDiv.scrollTop = consoleDiv.scrollHeight; // Scroll to bottom
+    }
 
     function updatePlayerData() {
         fetch(binUrl, {
@@ -22,12 +33,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update data');
+            }
+            return response.json();
+        })
         .then(data => {
-            console.log('Player data updated:', data);
+            logToConsole('Data sent successfully');
         })
         .catch(error => {
-            console.error('Error updating player data:', error);
+            logToConsole(`Error sending data: ${error.message}`);
         });
     }
 
@@ -38,13 +54,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-Master-Key': apiKey
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            return response.json();
+        })
         .then(data => {
-            console.log('Fetched player data:', data.record.players);
+            logToConsole('Data fetched successfully');
             updateGameState(data.record.players);
         })
         .catch(error => {
-            console.error('Error fetching player data:', error);
+            logToConsole(`Error fetching data: ${error.message}`);
         });
     }
 
