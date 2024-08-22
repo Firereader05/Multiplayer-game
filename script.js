@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const binUrl = `https://api.jsonbin.io/v3/b/${binId}/latest`;
 
     // Function to send player data to the bin
-    function updatePlayerData(playerId, x, y) {
+    function updatePlayerData() {
         fetch(binUrl, {
             method: 'PUT',
             headers: {
@@ -25,7 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({
                 "players": {
-                    [playerId]: { "x": x, "y": y }
+                    "player1": { "x": cube1Pos.x, "y": cube1Pos.y },
+                    "player2": { "x": cube2Pos.x, "y": cube2Pos.y }
                 }
             })
         })
@@ -58,29 +59,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to update game state with player data
     function updateGameState(players) {
-        // Hide all cubes initially
-        cube1.style.display = 'none';
-        cube2.style.display = 'none';
-
-        // Update positions and show cubes based on player data
+        // Update positions of cubes based on player data
         if (players['player1']) {
             cube1.style.left = `${players['player1'].x}px`;
             cube1.style.top = `${players['player1'].y}px`;
-            cube1.style.display = 'block'; // Show cube1
-            cube1Pos = { x: players['player1'].x, y: players['player1'].y };
         }
         if (players['player2']) {
             cube2.style.left = `${players['player2'].x}px`;
             cube2.style.top = `${players['player2'].y}px`;
-            cube2.style.display = 'block'; // Show cube2
-            cube2Pos = { x: players['player2'].x, y: players['player2'].y };
         }
-    }
-
-    // Function to handle player input and update player data
-    function handlePlayerInput(playerId, x, y) {
-        // Update player data on the server
-        updatePlayerData(playerId, x, y);
     }
 
     // Key press handlers
@@ -115,16 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
 
-        // Update the position of the cubes
-        cube1.style.left = `${cube1Pos.x}px`;
-        cube1.style.top = `${cube1Pos.y}px`;
-
-        cube2.style.left = `${cube2Pos.x}px`;
-        cube2.style.top = `${cube2Pos.y}px`;
-
-        // Send updated position to the server
-        handlePlayerInput('player1', cube1Pos.x, cube1Pos.y);
-        handlePlayerInput('player2', cube2Pos.x, cube2Pos.y);
+        // Send updated positions to the server
+        updatePlayerData();
     });
 
     // Fetch player data every 10 seconds
