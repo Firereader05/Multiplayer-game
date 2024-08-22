@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configuration for jsonbin.io
     const apiKey = '$2a$10$st.acJGoKc4lbSYAhnaIoOnc3gFoQGbxuv2hIGRkde2bvDaXybFuC';  // Replace with your actual API key
     const binId = '66c73f65e41b4d34e423bd43';  // Replace with your actual Bin ID
-    const binUrl = `https://api.jsonbin.io/v3/b/${binId}`;
+    const binUrl = `https://api.jsonbin.io/v3/b/${binId}/latest`;
 
     // Function to send player data to the bin
     function updatePlayerData(playerId, x, y) {
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to fetch player data from the bin
     function fetchPlayerData() {
-        fetch(`${binUrl}/latest`, {
+        fetch(binUrl, {
             method: 'GET',
             headers: {
                 'X-Master-Key': apiKey
@@ -48,8 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Fetched player data:', data.players);
-            updateGameState(data.players);
+            console.log('Fetched player data:', data.record.players);
+            updateGameState(data.record.players);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -58,14 +58,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to update game state with player data
     function updateGameState(players) {
+        // Hide all cubes initially
+        cube1.style.display = 'none';
+        cube2.style.display = 'none';
+
+        // Update positions and show cubes based on player data
         if (players['player1']) {
             cube1.style.left = `${players['player1'].x}px`;
             cube1.style.top = `${players['player1'].y}px`;
+            cube1.style.display = 'block'; // Show cube1
             cube1Pos = { x: players['player1'].x, y: players['player1'].y };
         }
         if (players['player2']) {
             cube2.style.left = `${players['player2'].x}px`;
             cube2.style.top = `${players['player2'].y}px`;
+            cube2.style.display = 'block'; // Show cube2
             cube2Pos = { x: players['player2'].x, y: players['player2'].y };
         }
     }
@@ -123,9 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch player data every 10 seconds
     setInterval(fetchPlayerData, 10000);
 
-    // Send player data every 10 seconds
-    setInterval(() => {
-        handlePlayerInput('player1', cube1Pos.x, cube1Pos.y);
-        handlePlayerInput('player2', cube2Pos.x, cube2Pos.y);
-    }, 10000);
+    // Initial fetch to set up the game state
+    fetchPlayerData();
 });
