@@ -3,9 +3,6 @@ const apiKey = '$2a$10$st.acJGoKc4lbSYAhnaIoOnc3gFoQGbxuv2hIGRkde2bvDaXybFuC';  
 const binId = '66c73f65e41b4d34e423bd43';  // Replace with your actual Bin ID
 const binUrl = `https://api.jsonbin.io/v3/b/${binId}`; // URL for accessing the bin
 
-// Initialize request counter
-let requestCount = 0;
-
 // Initialize player data
 const playerSprites = {
     'player1': createSprite(100, 200),
@@ -35,13 +32,10 @@ function updatePlayerData(playerId, x, y, velocityX, velocityY) {
     })
     .then(response => response.json())
     .then(data => {
-        requestCount++; // Increment request count
         console.log('Player data updated:', data);
-        output.textContent = `Data sent successfully! Request count: ${requestCount}`;
     })
     .catch(error => {
         console.error('Error:', error);
-        output.textContent = `Error sending data: ${error.message}`;
     });
 }
 
@@ -56,13 +50,10 @@ function fetchPlayerData() {
     .then(response => response.json())
     .then(data => {
         console.log('Fetched player data:', data.players);
-        requestCount++; // Increment request count
-        output.textContent = `Fetched Data: ${JSON.stringify(data.players)}. Request count: ${requestCount}`;
         updateGameState(data.players);
     })
     .catch(error => {
         console.error('Error:', error);
-        output.textContent = `Error fetching data: ${error.message}`;
     });
 }
 
@@ -73,7 +64,6 @@ function updateGameState(players) {
         if (playerSprites[playerId]) {
             playerSprites[playerId].x = playerData.x;
             playerSprites[playerId].y = playerData.y;
-            // Apply velocity if needed for animations
             playerSprites[playerId].velocityX = playerData.velocityX;
             playerSprites[playerId].velocityY = playerData.velocityY;
         }
@@ -117,14 +107,12 @@ function draw() {
     drawSprites();
 }
 
-// Fetch player data every 1 second
-setInterval(fetchPlayerData, 1000);
+// Fetch player data every 10 seconds
+setInterval(fetchPlayerData, 10000);
 
-// Event listeners for the buttons
-sendDataButton.addEventListener('click', () => {
+// Send player data every 10 seconds
+setInterval(() => {
     const playerId = 'player1'; // Replace with actual player ID
     const player = playerSprites[playerId];
     handlePlayerInput(playerId, player.x, player.y, player.velocityX, player.velocityY);
-});
-
-fetchDataButton.addEventListener('click', fetchPlayerData);
+}, 10000);
