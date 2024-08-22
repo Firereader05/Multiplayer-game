@@ -34,6 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
             })
         })
         .then(response => {
+            if (response.status === 404) {
+                throw new Error('Data not found. Check the URL and bin ID.');
+            }
             if (!response.ok) {
                 throw new Error(`Failed to update data. Status: ${response.status}`);
             }
@@ -55,6 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
+            if (response.status === 404) {
+                throw new Error('Data not found. Check the URL and bin ID.');
+            }
             if (!response.ok) {
                 throw new Error(`Failed to fetch data. Status: ${response.status}`);
             }
